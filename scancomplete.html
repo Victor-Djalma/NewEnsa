@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENSA - Resultados da Análise Completa</title>
+  <link rel="icon" href="Img/Transferir(1).png" type="image/png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #0f172a, #1e293b);
+      color: #f1f5f9;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .header {
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #475569;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 4rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      background: #10b981;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .back-btn {
+      background: #475569;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #64748b;
+    }
+
+    .main {
+      padding: 2rem 0;
+    }
+
+    .results-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .results-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.5rem;
+    }
+
+    .results-subtitle {
+      color: #cbd5e1;
+      font-size: 1.125rem;
+    }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .summary-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid #475569;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .summary-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-label {
+      color: #cbd5e1;
+      font-size: 0.875rem;
+    }
+
+    .download-section {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid #475569;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .download-btn {
+      background: #10b981;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .download-btn:hover {
+      background: #059669;
+    }
+
+    .hosts-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .host-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid #475569;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .host-card:hover {
+      background: rgba(30, 41, 59, 0.8);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .host-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #475569;
+    }
+
+    .host-info h3 {
+      color: white;
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .host-info p {
+      color: #cbd5e1;
+      font-size: 0.875rem;
+    }
+
+    .host-status {
+      background: #10b981;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .vulnerabilities-section {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #475569;
+    }
+
+    .vuln-header {
+      color: #ef4444;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .vuln-count {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .vuln-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .vuln-item {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 0.375rem;
+      padding: 1rem;
+    }
+
+    .vuln-title {
+      color: #f87171;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: between;
+      align-items: center;
+    }
+
+    .vuln-severity {
+      background: rgba(220, 38, 38, 0.2);
+      color: #ef4444;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-left: auto;
+    }
+
+    .vuln-description {
+      color: #cbd5e1;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .ports-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .port-item {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid #475569;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .port-item:hover {
+      border-color: #10b981;
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .port-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .port-number {
+      color: #10b981;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .port-state {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .port-service {
+      color: white;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .port-version {
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 2rem;
+      height: 2rem;
+      border: 3px solid rgba(16, 185, 129, 0.3);
+      border-radius: 50%;
+      border-top-color: #10b981;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #cbd5e1;
+    }
+
+    .error-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 0.5rem;
+      margin: 2rem 0;
+    }
+
+    .error-title {
+      font-size: 1.25rem;
+      color: #f87171;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-message {
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+
+    .retry-button {
+      padding: 0.5rem 1rem;
+      background: #10b981;
+      border: none;
+      border-radius: 0.375rem;
+      color: white;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: background 0.2s;
+    }
+
+    .retry-button:hover {
+      background: #059669;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1rem;
+      }
+
+      .ports-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">
+            <img src="Img/Transferir(1).png" alt="ENSA Logo" style="width: 100%; height: 100%; object-fit: contain;">
+          </div>
+          <span class="logo-text">ENSA</span>
+        </a>
+        <a href="index.html" class="back-btn">← Voltar</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="container">
+      <!-- Results Header -->
+      <div class="results-header">
+        <h1 class="results-title">Resultados da Análise Completa</h1>
+        <p class="results-subtitle" id="scan-target">Carregando resultados...</p>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+        <p>Processando resultados...</p>
+      </div>
+
+      <!-- Summary Cards -->
+      <div id="summary" class="summary-cards" style="display: none;">
+        <div class="summary-card">
+          <div class="summary-number" id="total-hosts">0</div>
+          <div class="summary-label">Hosts Encontrados</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-number" id="total-ports">0</div>
+          <div class="summary-label">Portas Abertas</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-number" id="total-vulns">0</div>
+          <div class="summary-label">Vulnerabilidades</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-number" id="scan-time">0:00</div>
+          <div class="summary-label">Tempo de Scan</div>
+        </div>
+      </div>
+
+      <!-- Download Section -->
+      <div id="download-section" class="download-section" style="display: none;">
+        <h3 style="margin-bottom: 1rem; color: white;">Exportar Relatório</h3>
+        <button id="download-btn" class="download-btn">
+          📄 Baixar Relatório PDF
+        </button>
+      </div>
+
+      <!-- Hosts Results -->
+      <div id="hosts-container" class="hosts-grid" style="display: none;"></div>
+
+      <!-- No Results -->
+      <div id="no-results" class="no-results" style="display: none;">
+        <h3>Nenhum resultado encontrado</h3>
+        <p>Não foram encontrados hosts ativos ou dados de scan.</p>
+        <a href="index.html" class="back-btn" style="display: inline-block; margin-top: 1rem;">Fazer Nova Análise</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let scanData = null;
+
+    function displayResults() {
+      const scanResults = sessionStorage.getItem('scanResults');
+      const scanTarget = sessionStorage.getItem('scanTarget');
+      const scanTimestamp = sessionStorage.getItem('scanTimestamp');
+
+      console.log('[DEBUG] Dados do sessionStorage:', {
+        scanResults: scanResults ? 'Presente' : 'Ausente',
+        scanTarget,
+        scanTimestamp
+      });
+
+      // Hide loading
+      document.getElementById('loading').style.display = 'none';
+
+      if (!scanResults) {
+        document.getElementById('no-results').style.display = 'block';
+        return;
+      }
+
+      try {
+        const results = JSON.parse(scanResults);
+        scanData = results; // Store for PDF generation
+        console.log('[DEBUG] Resultados parseados:', results);
+
+        // Update target info
+        document.getElementById('scan-target').textContent =
+          `Alvo: ${scanTarget || results.scan_range || 'N/A'} - ${new Date(scanTimestamp).toLocaleString()}`;
+
+        // Count vulnerabilities
+        let totalVulns = 0;
+        if (results.hosts) {
+          results.hosts.forEach(host => {
+            if (host.vulnerabilities) {
+              totalVulns += host.vulnerabilities.length;
+            }
+            if (host.ports) {
+              host.ports.forEach(port => {
+                if (port.vulnerabilities) {
+                  totalVulns += port.vulnerabilities.length;
+                }
+              });
+            }
+          });
+        }
+
+        // Update summary
+        document.getElementById('total-hosts').textContent = results.total_hosts || 0;
+        document.getElementById('total-ports').textContent = results.total_ports || 0;
+        document.getElementById('total-vulns').textContent = totalVulns;
+        document.getElementById('scan-time').textContent = results.scan_time || '0:00';
+
+        // Show summary
+        document.getElementById('summary').style.display = 'grid';
+
+        // Show download section if there are vulnerabilities
+        if (totalVulns > 0) {
+          document.getElementById('download-section').style.display = 'block';
+        }
+
+        // Display hosts
+        if (results.hosts && results.hosts.length > 0) {
+          displayHosts(results.hosts);
+          document.getElementById('hosts-container').style.display = 'grid';
+        } else {
+          document.getElementById('no-results').style.display = 'block';
+        }
+
+      } catch (error) {
+        console.error('[ERROR] Erro ao processar resultados:', error);
+        showErrorState(error.message);
+      }
+    }
+
+    function displayHosts(hosts) {
+      const container = document.getElementById('hosts-container');
+      container.innerHTML = '';
+
+      hosts.forEach(host => {
+        const hostCard = document.createElement('div');
+        hostCard.className = 'host-card';
+
+        // Count vulnerabilities for this host
+        let hostVulns = 0;
+        if (host.vulnerabilities) hostVulns += host.vulnerabilities.length;
+        if (host.ports) {
+          host.ports.forEach(port => {
+            if (port.vulnerabilities) hostVulns += port.vulnerabilities.length;
+          });
+        }
+
+        const portsHtml = host.ports && host.ports.length > 0
+          ? host.ports.map(port => `
+              <div class="port-item">
+                <div class="port-header">
+                  <div class="port-number">${port.port}/${port.protocol}</div>
+                  <div class="port-state">${port.state}</div>
+                </div>
+                <div class="port-service">${port.service || 'unknown'}</div>
+                <div class="port-version">${port.version || 'Versão não detectada'}</div>
+                ${port.vulnerabilities && port.vulnerabilities.length > 0 ? `
+                  <div class="vulnerabilities-section">
+                    <div class="vuln-header">
+                      🚨 Vulnerabilidades
+                      <span class="vuln-count">${port.vulnerabilities.length}</span>
+                    </div>
+                    <div class="vuln-grid">
+                      ${port.vulnerabilities.map(vuln => `
+                        <div class="vuln-item">
+                          <div class="vuln-title">
+                            ${vuln.title || vuln.name || 'Vulnerabilidade Detectada'}
+                            <span class="vuln-severity">ALTA</span>
+                          </div>
+                          <div class="vuln-description">
+                            ${vuln.description || vuln.summary || 'Descrição não disponível'}
+                            ${vuln.cve ? `<br><strong>CVE:</strong> ${vuln.cve}` : ''}
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')
+          : '<p style="color: #cbd5e1; text-align: center; padding: 2rem;">Nenhuma porta aberta encontrada</p>';
+
+        const hostVulnsHtml = host.vulnerabilities && host.vulnerabilities.length > 0 ? `
+          <div class="vulnerabilities-section">
+            <div class="vuln-header">
+              🚨 Vulnerabilidades do Host
+              <span class="vuln-count">${host.vulnerabilities.length}</span>
+            </div>
+            <div class="vuln-grid">
+              ${host.vulnerabilities.map(vuln => `
+                <div class="vuln-item">
+                  <div class="vuln-title">
+                    ${vuln.title || vuln.name || 'Vulnerabilidade Detectada'}
+                    <span class="vuln-severity">ALTA</span>
+                  </div>
+                  <div class="vuln-description">
+                    ${vuln.description || vuln.summary || 'Descrição não disponível'}
+                    ${vuln.cve ? `<br><strong>CVE:</strong> ${vuln.cve}` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : '';
+
+        hostCard.innerHTML = `
+          <div class="host-header">
+            <div class="host-info">
+              <h3>${host.ip}</h3>
+              <p>${host.hostname !== host.ip ? host.hostname : 'Hostname não resolvido'}</p>
+              ${host.mac ? `<p style="font-family: monospace; color: #10b981;">MAC: ${host.mac}</p>` : ''}
+              ${hostVulns > 0 ? `<p style="color: #ef4444; font-weight: 600;">⚠️ ${hostVulns} vulnerabilidades encontradas</p>` : ''}
+            </div>
+            <div class="host-status">${host.status || 'up'}</div>
+          </div>
+          <div class="ports-grid">
+            ${portsHtml}
+          </div>
+          ${hostVulnsHtml}
+        `;
+
+        container.appendChild(hostCard);
+      });
+    }
+
+    function generatePDFReport() {
+      if (!scanData) {
+        alert('Nenhum dado disponível para gerar relatório');
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Title
+      doc.setFontSize(18);
+      doc.text('Relatório de Vulnerabilidades - ENSA', 14, 22);
+
+      // Summary
+      doc.setFontSize(12);
+      doc.text(`Alvo: ${scanData.scan_range || 'N/A'}`, 14, 35);
+      doc.text(`Data: ${new Date().toLocaleDateString()}`, 14, 42);
+      doc.text(`Hosts: ${scanData.total_hosts || 0}`, 14, 49);
+      doc.text(`Portas: ${scanData.total_ports || 0}`, 14, 56);
+
+      // Vulnerabilities
+      let yPos = 70;
+      doc.setFontSize(14);
+      doc.text('Vulnerabilidades Encontradas:', 14, yPos);
+      yPos += 10;
+
+      if (scanData.hosts) {
+        scanData.hosts.forEach(host => {
+          if (yPos > 250) {
+            doc.addPage();
+            yPos = 20;
+          }
+
+          doc.setFontSize(12);
+          doc.text(`Host: ${host.ip}`, 14, yPos);
+          yPos += 7;
+
+          if (host.vulnerabilities) {
+            host.vulnerabilities.forEach(vuln => {
+              if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+              }
+              doc.setFontSize(10);
+              doc.text(`• ${vuln.title || vuln.name || 'Vulnerabilidade'}`, 20, yPos);
+              yPos += 5;
+            });
+          }
+
+          if (host.ports) {
+            host.ports.forEach(port => {
+              if (port.vulnerabilities) {
+                port.vulnerabilities.forEach(vuln => {
+                  if (yPos > 250) {
+                    doc.addPage();
+                    yPos = 20;
+                  }
+                  doc.setFontSize(10);
+                  doc.text(`• Porta ${port.port}: ${vuln.title || vuln.name || 'Vulnerabilidade'}`, 20, yPos);
+                  yPos += 5;
+                });
+              }
+            });
+          }
+          yPos += 5;
+        });
+      }
+
+      doc.save(`relatorio-vulnerabilidades-${new Date().toISOString().split('T')[0]}.pdf`);
+    }
+
+    function showErrorState(errorMessage) {
+      const container = document.getElementById('hosts-container');
+      container.style.display = 'block';
+      container.innerHTML = `
+        <div class="error-state">
+          <div class="error-title">Erro ao Carregar Resultados</div>
+          <div class="error-message">
+            ${errorMessage}<br><br>
+            Verifique se a API está funcionando corretamente.
+          </div>
+          <button class="retry-button" onclick="displayResults()">Tentar Novamente</button>
+        </div>
+      `;
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('[DEBUG] Página de resultados completos carregada');
+      displayResults();
+
+      // Add PDF download event listener
+      document.getElementById('download-btn').addEventListener('click', generatePDFReport);
+    });
+  </script>
+</body>
+</html>
